@@ -7,7 +7,7 @@ A Python library to send notifications to your iPhone, Discord, Telegram, WeChat
 [Bark](https://apps.apple.com/us/app/bark-customed-notifications/id1403753865), [Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
 , [Telegram](https://core.telegram.org/bots), [ServerChan](https://sc.ftqq.com/3.version), [ServerChanTurbo](https://sct.ftqq.com)
 , [WechatWorkApp](https://work.weixin.qq.com/api/doc/90000/90135/90236)
-, [WechatWorkBot](https://work.weixin.qq.com/api/doc/90000/90136/91770), [pushplus](https://www.pushplus.plus/doc), [Qmsg](https://qmsg.zendee.cn/api.html)
+, [WechatWorkBot](https://work.weixin.qq.com/api/doc/90000/90136/91770), [pushplus](https://www.pushplus.plus/doc), [go-cqhttp](https://docs.go-cqhttp.org), [Qmsg](https://qmsg.zendee.cn/api.html)
 , [DingTalk](https://developers.dingtalk.com/document/app/custom-robot-access), Customised providers
 
 ## Installation
