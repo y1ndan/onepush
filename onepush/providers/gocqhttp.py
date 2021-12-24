@@ -24,7 +24,7 @@ class Gocqhttp(Provider):
         self.method = 'get'
 
     def _prepare_url(self, endpoint: str, path: str = None, **kwargs):
-        if endpoint and 'http' not in endpoint:
+        if endpoint and '//' not in endpoint:
             endpoint = f'http://{endpoint}'
         if not path:
             path = '/send_msg'
