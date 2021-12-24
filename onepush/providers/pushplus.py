@@ -36,3 +36,6 @@ class PushPlus(Provider):
             'topic': topic
         }
         return self.data
+
+    def _send_message(self):
+        return self.request('post', self.url, json=self.data)
