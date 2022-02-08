@@ -22,7 +22,7 @@ class Bark(Provider):
 
     def _prepare_url(self, key: str, **kwargs):
         self.url = key
-        if 'https' not in key or 'http' not in key:
+        if 'https' not in key and 'http' not in key:
             self.url = self.base_url.format(key)
         return self.url
 
