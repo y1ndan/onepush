@@ -13,11 +13,11 @@ class PushDeer(Provider):
     site_url = 'https://www.pushdeer.com/official.html'
 
     _params = {
-        'required': ['pushkey', 'content'],
-        'optional': ['url', 'desp', 'title', 'type']
+        'required': ['pushkey', 'title', 'content'],
+        'optional': ['url', 'type']
     }
 
-    def _prepare_url(self, url: str == None, **kwargs):
+    def _prepare_url(self, url: str = None, **kwargs):
         self.url = self.base_url
         if url:
             self.url = url
@@ -25,15 +25,15 @@ class PushDeer(Provider):
 
     def _prepare_data(self,
                       content: str,
-                      pushkey: str = None,
-                      desp: str = None,
+                      pushkey: str,
+                      title: str = None,
                       type: str = "markdown",
                       **kwargs):
         self.data = {
             'pushkey': pushkey,
-            'text': content,
+            'text': title,
             'type': type,
-            'desp': desp
+            'desp': content
         }
         return self.data
 
