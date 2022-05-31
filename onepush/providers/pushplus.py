@@ -14,7 +14,7 @@ class PushPlus(Provider):
 
     _params = {
         'required': ['token', 'content'],
-        'optional': ['title', 'topic', 'markdown']
+        'optional': ['title', 'topic', 'markdown', 'channel', 'webhook', 'callbackUrl']
     }
 
     def _prepare_url(self, **kwargs):
@@ -27,13 +27,19 @@ class PushPlus(Provider):
                       title: str = None,
                       topic: str = None,
                       markdown: bool = False,
+                      channel: str = None,
+                      webhook: str = None,
+                      callbackUrl: str = None,
                       **kwargs):
         self.data = {
             'token': token,
             'title': title,
             'content': content,
             'template': 'markdown' if markdown else 'html',
-            'topic': topic
+            'topic': topic,
+            'channel': channel,
+            'webhook': webhook,
+            'callbackUrl': callbackUrl
         }
         return self.data
 
