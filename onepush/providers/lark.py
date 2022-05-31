@@ -8,7 +8,10 @@ import time
 
 class Lark(Provider):
     name = 'lark'
-
+    _params = {
+        'required': ['webhook', 'content'],
+        'optional': ['keyword', 'sign']
+    }
     def gen_sign(self, timestamp, secret):
         string_to_sign = '{}\n{}'.format(timestamp, secret)
         hmac_code = hmac.new(string_to_sign.encode("utf-8"), digestmod=hashlib.sha256).digest()
