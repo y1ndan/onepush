@@ -14,6 +14,7 @@ from . import pushdeer
 from . import qmsg
 from . import serverchan
 from . import serverchanturbo
+from . import smtp
 from . import telegram
 from . import wechatworkapp
 from . import wechatworkbot
@@ -30,6 +31,7 @@ _all_providers = {
     qmsg.Qmsg.name: qmsg.Qmsg,
     serverchan.ServerChan.name: serverchan.ServerChan,
     serverchanturbo.ServerChanTurbo.name: serverchanturbo.ServerChanTurbo,
+    smtp.SMTP.name: smtp.SMTP,
     telegram.Telegram.name: telegram.Telegram,
     wechatworkapp.WechatWorkApp.name: wechatworkapp.WechatWorkApp,
     wechatworkbot.WechatWorkBot.name: wechatworkbot.WechatWorkBot,
