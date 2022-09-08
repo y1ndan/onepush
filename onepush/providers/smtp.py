@@ -41,12 +41,14 @@ class SMTP(Provider):
     See function `_default_message_parser` for more details.
     Use `SMTP.set_message_parser(custom_parser)` to set your custom message parser.
     """
+
     name = "smtp"
+    site_url = "https://docs.python.org/3/library/smtplib.html"
     _server: smtplib.SMTP
     _message_parser = _default_message_parser
     _params = {
         "required": ["host", "user", "password"],
-        "optional": ["port", "ssl", "msg", "subject", "title", "content", "From", "To"],
+        "optional": ["port", "ssl", "starttls", "msg", "subject", "title", "content", "From", "To"],
     }
 
     @classmethod
@@ -60,6 +62,7 @@ class SMTP(Provider):
         password: str,
         port: int = 0,
         ssl: bool = None,
+        starttls: bool = False,
         **kwargs,
     ):
         if ssl is None:
@@ -68,6 +71,8 @@ class SMTP(Provider):
         s = smtplib.SMTP_SSL if ssl else smtplib.SMTP
         self._server = s(host, port)
         # self._server.set_debuglevel(1)
+        if starttls:
+            self._server.starttls()
         try:
             self._server.login(user=user, password=password)
         except smtplib.SMTPException as e:
