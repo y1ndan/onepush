@@ -14,7 +14,7 @@ class WechatWorkApp(Provider):
 
     _params = {
         'required': ['corpid', 'corpsecret', 'agentid'],
-        'optional': ['title', 'content', 'touser', 'markdown']
+        'optional': ['title', 'content', 'touser', 'markdown', 'media_id']
     }
 
     def _prepare_url(self, corpid: str, corpsecret: str, **kwargs):
@@ -32,20 +32,40 @@ class WechatWorkApp(Provider):
                       content: str = None,
                       touser: str = '@all',
                       markdown: bool = False,
+                      media_id: str = None,
                       **kwargs):
         message = self.process_message(title, content)
-        msgtype = 'text'
-        if markdown:
-            msgtype = 'markdown'
+        if media_id is None:
+            msgtype = 'text'
+            if markdown:
+                msgtype = 'markdown'
 
-        self.data = {
-            'touser': touser,
-            'msgtype': msgtype,
-            'agentid': agentid,
-            msgtype: {
-                'content': message
+            self.data = {
+                'touser': touser,
+                'msgtype': msgtype,
+                'agentid': agentid,
+                msgtype: {
+                    'content': message
+                }
             }
-        }
+        else:
+            self.data = {
+                "touser": touser,
+                "msgtype": "mpnews",
+                "agentid": agentid,
+                "mpnews": {
+                    "articles": [
+                        {
+                            "title": title,
+                            "thumb_media_id": media_id,
+                            "content_source_url": "",
+                            "content": content.replace("\n", "<br/>"),
+                            "digest": content,
+                        }
+                    ]
+                },
+                "safe": 0
+            }
         return self.data
 
     def _send_message(self):
