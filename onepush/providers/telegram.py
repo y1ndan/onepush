@@ -28,4 +28,5 @@ class Telegram(Provider):
             'text': message,
             'disable_web_page_preview': True
         }
+        self.data.update(kwargs)
         return self.data
