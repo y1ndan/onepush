@@ -18,7 +18,7 @@ class Gotify(Provider):
                       **kwargs):
         self.data = {
             'title': title,
-            'content': content,
+            'message': content,
             'priority': priority
         }
         return self.data
