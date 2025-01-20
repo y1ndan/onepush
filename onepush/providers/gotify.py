@@ -3,7 +3,7 @@ from ..core import Provider
 class Gotify(Provider):
     name = 'gotify'
     _params = {
-        'required': ['url', 'message', 'token'],
+        'required': ['url', 'content', 'token'],
         'optional': ['title', 'priority']
     }
 
@@ -12,13 +12,13 @@ class Gotify(Provider):
         return self.url
 
     def _prepare_data(self,
-                      message: str,
+                      content: str,
                       title: str = None,
                       priority: int = 0,
                       **kwargs):
         self.data = {
             'title': title,
-            'message': message,
+            'message': content,
             'priority': priority
         }
         return self.data
