@@ -20,6 +20,7 @@ from . import wechatworkapp
 from . import wechatworkbot
 from . import lark
 from . import gotify
+from . import ntfy
 
 _all_providers = {
     bark.Bark.name: bark.Bark,
@@ -37,5 +38,6 @@ _all_providers = {
     wechatworkapp.WechatWorkApp.name: wechatworkapp.WechatWorkApp,
     wechatworkbot.WechatWorkBot.name: wechatworkbot.WechatWorkBot,
     lark.Lark.name: lark.Lark,
-    gotify.Gotify.name: gotify.Gotify
+    gotify.Gotify.name: gotify.Gotify,
+    ntfy.Ntfy.name: ntfy.Ntfy
 }
