@@ -79,7 +79,7 @@ class Provider(object):
             return response
 
     def notify(self, **kwargs):
-        self.proxies = kwargs.pop('proxies', '')
+        self.proxies = kwargs.pop('proxies', None)
         self._prepare_url(**kwargs)
         self._prepare_data(**kwargs)
         return self._send_message()
