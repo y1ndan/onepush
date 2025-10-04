@@ -26,6 +26,7 @@ class Provider(object):
         self.datatype = 'data'
         self.url = None
         self.data = None
+        self.proxies = None
 
     def _prepare_url(self, **kwargs):
         ...
@@ -35,12 +36,12 @@ class Provider(object):
 
     def _send_message(self):
         if self.method.upper() == 'GET':
-            response = self.request('get', self.url, params=self.data)
+            response = self.request('get', self.url, self.proxies, params=self.data)
         elif self.method.upper() == 'POST':
             if self.datatype.lower() == 'json':
-                response = self.request('post', self.url, json=self.data)
+                response = self.request('post', self.url, self.proxies, json=self.data)
             else:
-                response = self.request('post', self.url, data=self.data)
+                response = self.request('post', self.url, self.proxies, data=self.data)
         else:
             raise OnePushException('Request method {} not supported.'.format(self.method))
 
@@ -60,8 +61,10 @@ class Provider(object):
         return message
 
     @staticmethod
-    def request(method, url, **kwargs):
+    def request(method, url, proxies, **kwargs):
         session = requests.Session()
+        if proxies:
+            session.proxies.update(proxies)
         response = None
         try:
             response = session.request(method, url, **kwargs)
@@ -76,6 +79,7 @@ class Provider(object):
             return response
 
     def notify(self, **kwargs):
+        self.proxies = kwargs.pop('proxies', None)
         self._prepare_url(**kwargs)
         self._prepare_data(**kwargs)
         return self._send_message()

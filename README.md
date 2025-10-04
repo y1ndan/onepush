@@ -45,3 +45,22 @@ from onepush import notify
 notify('bark', key='YOUR_BARK_KEY', title='OnePush', content='Hello World!')
 ```
 
+## Proxy Support
+
+You can use proxy with any notifier by adding the `proxies` parameter:
+
+```python
+# Using HTTP/HTTPS proxy
+proxies = {
+    'http': 'http://127.0.0.1:7890',
+    'https': 'socks5h://127.0.0.1:7890'
+}
+
+notify('bark', 
+       key='YOUR_BARK_KEY', 
+       title='OnePush', 
+       content='Hello World!',
+       proxies=proxies)
+```
+
+The `proxies` parameter accepts the same format as the [requests library](https://requests.readthedocs.io/en/latest/user/advanced/#proxies).
