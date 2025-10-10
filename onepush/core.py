@@ -61,7 +61,7 @@ class Provider(object):
         return message
 
     @staticmethod
-    def request(method, url, proxies, **kwargs):
+    def request(method, url, proxies = None, **kwargs):
         session = requests.Session()
         if proxies:
             session.proxies.update(proxies)
