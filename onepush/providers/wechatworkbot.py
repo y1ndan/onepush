@@ -26,14 +26,24 @@ class WechatWorkBot(Provider):
     def _prepare_data(self,
                       title: str = None,
                       content: str = None,
-                      markdown: bool = False,
+                      markdown: int = 0,
                       **kwargs):
-        message = self.process_message(title, content)
+        message = ""
         msgtype = 'text'
-        if markdown:
-            msgtype = 'markdown'
+        msgtag = 'content'
 
-        self.data = {'msgtype': msgtype, msgtype: {'content': message}}
+        if markdown == 1:
+            message = self.process_message(title, content)
+            msgtype = 'markdown'
+        elif markdown == 2:
+            message = self.process_message(title, content)
+            msgtype = 'markdown_v2'
+        elif markdown == 3:
+            msgtype = 'news'
+            msgtag = 'articles'
+            message = content
+        
+        self.data = {'msgtype': msgtype, msgtype: {msgtag: message}}
         return self.data
 
     def _send_message(self):
