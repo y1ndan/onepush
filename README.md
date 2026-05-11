@@ -30,10 +30,10 @@ from onepush import get_notifier
 n = get_notifier('bark')
 print(n.params)
 
-response = n.notify(key='YOUR_BARK_KEY', title='OnePush', content='Hello World!')
+response = n.notify(device_key='YOUR_BARK_KEY', title='OnePush', content='Hello World!')
 print(response.text)
 
-# {'required': ['key'], 'optional': ['title', 'content', 'sound', 'isarchive', 'icon', 'group', 'url', 'copy', 'autocopy']}
+# {'required': ['device_key'], 'optional': ['title', 'subtitle', 'body', 'markdown', 'device_key', 'device_keys', 'level', 'volume', 'badge', 'call', 'autoCopy', 'copy', 'sound', 'icon', 'image', 'group', 'ciphertext', 'isArchive', 'url', 'action', 'id', 'delete', 'cipherkey', 'ciphermethod', 'base_url', 'content', 'key']}
 # {"code":200,"message":"success","timestamp":1633528319}
 ```
 
@@ -42,6 +42,12 @@ Or:
 ```python
 from onepush import notify
 
+notify('bark', device_key='YOUR_BARK_KEY', title='OnePush', content='Hello World!')
+```
+
+You can also use the alias `key` for `device_key`:
+
+```python
 notify('bark', key='YOUR_BARK_KEY', title='OnePush', content='Hello World!')
 ```
 
@@ -57,7 +63,7 @@ proxies = {
 }
 
 notify('bark', 
-       key='YOUR_BARK_KEY', 
+       device_key='YOUR_BARK_KEY', 
        title='OnePush', 
        content='Hello World!',
        proxies=proxies)

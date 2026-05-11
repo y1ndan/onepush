@@ -16,48 +16,115 @@ from ..core import Provider
 
 class Bark(Provider):
     name = 'bark'
-    base_url = 'https://api.day.app/{}'
+    base_url = 'https://api.day.app/push'
     site_url = 'https://apps.apple.com/us/app/bark-customed-notifications/id1403753865'
 
     _params = {
-        'required': ['key'],
+        'required': ['device_key'],
         'optional': [
-            'title', 'content', 'sound', 'isarchive', 'icon', 'group', 'url', 'copy',
-            'autocopy', 'cipherkey', 'ciphermethod',
+            'title',
+            'subtitle',
+            'body',
+            'markdown',
+            'device_keys',
+            'level',
+            'volume',
+            'badge',
+            'call',
+            'autoCopy',
+            'copy',
+            'sound',
+            'icon',
+            'image',
+            'group',
+            'ciphertext',
+            'isArchive',
+            'url',
+            'action',
+            'id',
+            'delete',
+            'cipherkey',
+            'ciphermethod',
+            # Custom parameters
+            'base_url',
+            # Aliases
+            'key', # <-> device_key
+            'content', # <-> body
+            'autocopy', # <-> autoCopy
+            'isarchive', # <-> isArchive
         ]
     }
 
-    def _prepare_url(self, key: str, **kwargs):
-        self.url = key
-        if 'https' not in key and 'http' not in key:
-            self.url = self.base_url.format(key)
+    def _prepare_url(self, base_url: str = None, **kwargs):
+        self.method = 'post'
+
+        if base_url:
+            self.base_url = base_url
+
+        self.url = self.base_url
+        if not self.url.endswith('/push'):
+            self.url += '/push'
+
         return self.url
 
     def _prepare_data(self,
-                      title: str = None,
+                      key: str = None,
                       content: str = None,
-                      sound: str = 'healthnotification',
-                      isarchive: int = None,
-                      icon: str = None,
-                      group: str = None,
-                      url: str = None,
-                      copy: str = None,
-                      autocopy: int = None,
                       cipherkey: str = None,
                       ciphermethod: str = None,
                       **kwargs):
-        self.data = {
-            'title': title,
+        self.datatype = 'json'
+
+        params = {
+            'title': None,
+            'subtitle': None,
             'body': content,
-            'sound': sound,
-            'isArchive': 1 if isarchive else isarchive,
-            'icon': icon,
-            'group': group,
-            'url': url,
-            'copy': copy,
-            'autoCopy': 1 if autocopy else autocopy
+            'markdown': None,
+            'device_key': key,
+            'device_keys': None,
+            'level': None,
+            'volume': None,
+            'badge': None,
+            'call': None,
+            'autoCopy': None,
+            'copy': None,
+            'sound': None,
+            'icon': None,
+            'image': None,
+            'group': None,
+            'ciphertext': None,
+            'isArchive': None,
+            'url': None,
+            'action': None,
+            'id': None,
+            'delete': None,
         }
-        self._encrypt_data(cipherkey, ciphermethod)
+
+        for field in params:
+            if field in kwargs:
+                params[field] = kwargs.get(field)
+
+        if params['autoCopy'] is None and 'autocopy' in kwargs:
+            params['autoCopy'] = kwargs.get('autocopy')
+        if params['isArchive'] is None and 'isarchive' in kwargs:
+            params['isArchive'] = kwargs.get('isarchive')
+
+        # Remove None values to avoid Bark server JSON parsing errors
+        self.data = {k: v for k, v in params.items() if v is not None}
+
+        if params['ciphertext']:
+            self.data = {
+                'ciphertext': params['ciphertext'],
+                'device_key': params['device_key'],
+                'device_keys': params['device_keys'],
+            }
+            iv = kwargs.get('iv')
+            if iv:
+                self.data['iv'] = iv
+            self.data = {k: v for k, v in self.data.items() if v is not None}
+        else:
+            self._encrypt_data(cipherkey, ciphermethod)
+
         return self.data
 
     def _encrypt_data(self, key: str, method: str):
@@ -78,7 +145,7 @@ class Bark(Provider):
             'ciphertext': ciphertext,
             'iv': iv.decode('ascii'),
         }
-    
+
     def _encrypt_by_ecb(self, key: str):
         body = json.dumps(self.data)
         cipher = AES.new(key.encode(), AES.MODE_ECB)
