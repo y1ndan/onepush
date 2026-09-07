@@ -1,0 +1,148 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional. Leave empty to publish the version already in __version__.py'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pypi-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Require a branch ref
+        if: github.ref_type != 'branch'
+        run: |
+          echo '::error::Select a branch when starting the release workflow'
+          exit 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build twine packaging
+
+      - name: Resolve release version
+        id: version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          # Keep the version file as the single source of truth for setup.py and the package.
+          python - <<'PY'
+          import re
+          import os
+          from pathlib import Path
+          from packaging.version import InvalidVersion, Version
+
+          version_file = Path('onepush/__version__.py')
+          text = version_file.read_text(encoding='utf-8')
+          version_lines = []
+          for index, line in enumerate(text.splitlines(keepends=True)):
+              match = re.fullmatch(
+                  r"(\s*__version__\s*=\s*)(['\"])([^'\"]+)(\2)([ \t]*)(\r?\n)?",
+                  line,
+              )
+              if match:
+                  version_lines.append((index, match))
+
+          if len(version_lines) != 1:
+              raise SystemExit(
+                  'Expected exactly one string assignment to __version__ in '
+                  'onepush/__version__.py'
+              )
+
+          version_index, version_match = version_lines[0]
+          current_version = version_match.group(3)
+          try:
+              current = Version(current_version)
+          except InvalidVersion as exc:
+              raise SystemExit(
+                  f'Current project version is invalid: {current_version}'
+              ) from exc
+
+          release_version = os.environ.get('RELEASE_VERSION', '').strip()
+          should_commit = 'false'
+          if release_version:
+              try:
+                  target = Version(release_version)
+              except InvalidVersion as exc:
+                  raise SystemExit(
+                      f'Invalid PEP 440 release version: {release_version}'
+                  ) from exc
+
+              if str(target) != release_version:
+                  raise SystemExit(
+                      f'Release version must be canonical PEP 440 form: {release_version}'
+                  )
+
+              if target <= current:
+                  raise SystemExit(
+                      f'Release version {release_version} must be greater than '
+                      f'current version {current_version}'
+                  )
+
+              lines = text.splitlines(keepends=True)
+              line_ending = version_match.group(6) or ''
+              lines[version_index] = (
+                  f"{version_match.group(1)}'{release_version}'"
+                  f'{version_match.group(5)}{line_ending}'
+              )
+              with version_file.open('w', encoding='utf-8', newline='') as output:
+                  output.write(''.join(lines))
+              should_commit = 'true'
+          else:
+              release_version = current_version
+
+          with Path(os.environ['GITHUB_OUTPUT']).open(
+              'a', encoding='utf-8', newline='\n'
+          ) as output:
+              output.write(f'release_version={release_version}\n')
+              output.write(f'should_commit={should_commit}\n')
+          PY
+
+      - name: Commit release version
+        if: steps.version.outputs.should_commit == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.release_version }}
+        run: |
+          git diff --check
+          git diff -- onepush/__version__.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add onepush/__version__.py
+          git commit -m "chore(release): publish ${RELEASE_VERSION}"
+
+      - name: Build distributions
+        run: python -m build --sdist --wheel
+
+      - name: Check distributions
+        run: python -m twine check dist/*
+
+      - name: Upload to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: python -m twine upload --non-interactive dist/*
+
+      - name: Push release commit
+        # A failed upload leaves the remote branch unchanged, so the same version can be retried.
+        if: steps.version.outputs.should_commit == 'true'
+        run: git push origin "HEAD:${GITHUB_REF_NAME}"
