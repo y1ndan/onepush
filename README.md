@@ -70,3 +70,23 @@ notify('bark',
 ```
 
 The `proxies` parameter accepts the same format as the [requests library](https://requests.readthedocs.io/en/latest/user/advanced/#proxies).
+
+## Custom Headers
+
+The `custom` provider accepts a `headers` parameter, useful for webhooks that require authentication or other custom headers:
+
+```python
+from onepush import notify
+
+notify('custom',
+       url='https://example.com/webhook',
+       method='post',
+       datatype='json',
+       data={'foo': 'bar'},
+       headers={
+           'Content-Type': 'application/json',
+           'X-API-Key': 'YOUR_API_KEY',
+       })
+```
+
+The `headers` parameter uses the same format as the `headers` argument in the requests library, and is optional. When omitted, no extra headers are added by onepush.
