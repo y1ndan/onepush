@@ -34,14 +34,17 @@ class Provider(object):
     def _prepare_data(self, **kwargs):
         ...
 
-    def _send_message(self):
+    def _send_message(self, headers=None):
         if self.method.upper() == 'GET':
-            response = self.request('get', self.url, self.proxies, params=self.data)
+            response = self.request('get', self.url, self.proxies,
+                                    params=self.data, headers=headers)
         elif self.method.upper() == 'POST':
             if self.datatype.lower() == 'json':
-                response = self.request('post', self.url, self.proxies, json=self.data)
+                response = self.request('post', self.url, self.proxies,
+                                        json=self.data, headers=headers)
             else:
-                response = self.request('post', self.url, self.proxies, data=self.data)
+                response = self.request('post', self.url, self.proxies,
+                                        data=self.data, headers=headers)
         else:
             raise OnePushException('Request method {} not supported.'.format(self.method))
 
